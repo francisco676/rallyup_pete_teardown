@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>the pete caputa teardown · rallyup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ru-blue:#3d68f5;
+  --ru-blue-dark:#2a3ad8;
+  --ru-blue-deep:#1e3a8a;
+  --ru-yellow:#DDFF4D;
+  --ru-ink:#0b1020;
+  --ru-gray:#6b7280;
+  --ru-bg:#ffffff;
+  --ru-bg-soft:#f7f8fb;
+  --ru-font-sans:'Inter',system-ui,-apple-system,sans-serif;
+  --ru-font-serif:'Instrument Serif',Georgia,serif;
+  --ru-font-mono:'JetBrains Mono',monospace;
+  --ru-r-pill:999px;
+  --ru-r-lg:14px;
+  --ru-r-xl:18px;
+  --ru-r-2xl:24px;
+  --ru-r-3xl:32px;
+  --ru-shadow-card:0 20px 40px rgba(11,16,32,0.08);
+  --ru-shadow-float:0 30px 60px rgba(11,16,32,0.12), 0 8px 20px rgba(11,16,32,0.06);
+  --ru-shadow-btn-b:0 12px 28px rgba(61,104,245,0.35);
+  --ru-shadow-btn-y:0 12px 28px rgba(221,255,77,0.45);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:var(--ru-font-sans);color:var(--ru-ink);background:var(--ru-bg);-webkit-font-smoothing:antialiased;letter-spacing:-0.01em;line-height:1.5}
+
+.gradient-underline{background-image:linear-gradient(transparent 70%,rgba(221,255,77,0.65) 70%);background-repeat:no-repeat;background-size:100% 100%;padding:0 4px}
+.highlight-serif{background-image:linear-gradient(transparent 30%,rgba(221,255,77,0.75) 30%,rgba(221,255,77,0.75) 92%,transparent 92%);background-repeat:no-repeat;background-size:100% 100%;padding:0 8px}
+.dot-pattern{background-image:radial-gradient(circle,rgba(61,104,245,0.12) 1px,transparent 1px);background-size:22px 22px}
+
+.logo-box{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#6a7ff0 0%,#3a4fd8 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* ═══════════════════════════════════════════════════════════════════
+   GATE
+═══════════════════════════════════════════════════════════════════ */
+#gate{
+  position:fixed;inset:0;z-index:1000;
+  background:var(--ru-bg);
+  display:flex;align-items:center;justify-content:center;
+  padding:32px 20px;overflow-y:auto;
+  transition:opacity 0.5s ease;
+}
+#gate.unlocking{opacity:0}
+
+.gate-bg{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.gate-bg::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(61,104,245,0.08) 1px,transparent 1px);background-size:26px 26px}
+.gate-bg::after{content:'';position:absolute;top:-20%;right:-15%;width:55%;height:70%;background:radial-gradient(ellipse,rgba(221,255,77,0.22) 0%,transparent 60%)}
+
+.gate-card{
+  position:relative;z-index:2;
+  max-width:560px;width:100%;
+  background:#fff;border-radius:var(--ru-r-3xl);
+  padding:48px 44px;
+  box-shadow:var(--ru-shadow-float);
+  border:1px solid rgba(11,16,32,0.06);
+}
+
+.gate-brand{display:flex;align-items:center;gap:12px;margin-bottom:36px}
+.gate-brand .wordmark{font-weight:900;font-size:19px;color:var(--ru-blue-dark);letter-spacing:-0.02em}
+
+.gate-badge{
+  display:inline-block;
+  font-family:var(--ru-font-mono);font-size:11px;font-weight:700;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--ru-blue);
+  background:rgba(61,104,245,0.08);
+  padding:8px 14px;border-radius:var(--ru-r-pill);
+  margin-bottom:22px;
+}
+
+.gate-card h1{
+  font-family:var(--ru-font-sans);font-weight:900;
+  font-size:40px;line-height:1.05;letter-spacing:-0.03em;
+  color:var(--ru-ink);margin-bottom:18px;
+}
+.gate-card h1 .serif{
+  font-family:var(--ru-font-serif);font-style:italic;font-weight:400;
+  color:var(--ru-blue);display:block;font-size:40px;line-height:1.05;
+  letter-spacing:-0.01em;margin-top:6px;
+}
+
+.gate-sub{
+  font-size:16px;line-height:1.55;color:var(--ru-gray);
+  margin-bottom:28px;
+}
+
+.gate-bullets{list-style:none;margin:0 0 30px 0;padding:0}
+.gate-bullets li{
+  position:relative;padding-left:24px;
+  font-size:15.5px;line-height:1.5;color:var(--ru-ink);
+  margin-bottom:12px;font-weight:500;
+}
+.gate-bullets li::before{
+  content:'';position:absolute;left:0;top:9px;
+  width:10px;height:10px;border-radius:50%;
+  background:var(--ru-yellow);
+}
+
+.gate-form{display:flex;gap:10px;margin-bottom:14px}
+.gate-form input{
+  flex:1;font-family:var(--ru-font-sans);font-size:15px;
+  padding:15px 20px;border:1.5px solid rgba(11,16,32,0.12);
+  border-radius:var(--ru-r-pill);outline:none;color:var(--ru-ink);
+  transition:border-color 0.2s;
+}
+.gate-form input:focus{border-color:var(--ru-blue)}
+.gate-form button{
+  font-family:var(--ru-font-sans);font-weight:700;font-size:15px;
+  padding:15px 28px;background:var(--ru-yellow);color:var(--ru-blue-dark);
+  border:none;border-radius:var(--ru-r-pill);cursor:pointer;
+  box-shadow:var(--ru-shadow-btn-y);
+  transition:transform 0.15s;white-space:nowrap;
+}
+.gate-form button:hover{transform:translateY(-1px)}
+.gate-form button:disabled{opacity:0.6;cursor:not-allowed}
+
+.gate-fine{
+  font-size:12.5px;color:var(--ru-gray);line-height:1.5;
+}
+.gate-error{
+  color:#dc2626;font-size:13px;margin-top:6px;display:none;
+}
+.gate-error.show{display:block}
+
+/* ═══════════════════════════════════════════════════════════════════
+   CONTENT
+═══════════════════════════════════════════════════════════════════ */
+#content{display:none}
+
+.wrap{max-width:820px;margin:0 auto;padding:0 24px}
+.wrap-wide{max-width:1100px;margin:0 auto;padding:0 24px}
+
+/* HERO */
+.hero{
+  position:relative;padding:72px 0 64px;
+  background:var(--ru-bg);overflow:hidden;
+}
+.hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(61,104,245,0.10) 1.2px,transparent 1.2px);background-size:26px 26px;pointer-events:none}
+.hero::after{content:'';position:absolute;top:-30%;right:-10%;width:50%;height:100%;background:radial-gradient(ellipse,rgba(221,255,77,0.25) 0%,transparent 55%);pointer-events:none}
+
+.hero-inner{position:relative;z-index:2}
+
+.hero-brand{display:flex;align-items:center;gap:12px;margin-bottom:36px}
+.hero-brand .wordmark{font-weight:900;font-size:20px;color:var(--ru-blue-dark);letter-spacing:-0.02em}
+
+.hero-eyebrow{
+  display:inline-block;
+  font-family:var(--ru-font-mono);font-size:12px;font-weight:700;
+  letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--ru-blue);
+  background:rgba(61,104,245,0.08);
+  padding:8px 14px;border-radius:var(--ru-r-pill);
+  margin-bottom:24px;
+}
+
+.hero h1{
+  font-family:var(--ru-font-sans);font-weight:900;
+  font-size:clamp(38px,6vw,64px);line-height:1.02;letter-spacing:-0.035em;
+  color:var(--ru-ink);margin-bottom:18px;
+}
+.hero h1 .serif{
+  font-family:var(--ru-font-serif);font-style:italic;font-weight:400;
+  color:var(--ru-blue);display:block;
+  font-size:clamp(34px,5.5vw,60px);line-height:1.05;letter-spacing:-0.015em;
+  margin-top:4px;
+}
+
+.hero-sub{
+  font-size:18px;line-height:1.55;color:var(--ru-ink);
+  max-width:620px;margin-bottom:32px;
+}
+.hero-sub strong{font-weight:700;color:var(--ru-ink)}
+
+.hero-byline{
+  display:flex;align-items:center;gap:12px;
+  font-family:var(--ru-font-mono);font-size:13px;font-weight:600;
+  color:var(--ru-gray);letter-spacing:0.03em;
+}
+.hero-byline b{color:var(--ru-blue-dark);font-weight:700}
+
+/* STATS BAR */
+.stats-bar{
+  background:var(--ru-bg-soft);
+  border-top:1px solid rgba(11,16,32,0.06);
+  border-bottom:1px solid rgba(11,16,32,0.06);
+  padding:40px 0;
+}
+.stats-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:32px;
+  max-width:980px;margin:0 auto;padding:0 24px;
+}
+.stats-grid .stat{text-align:center}
+.stats-grid .stat .n{
+  font-family:var(--ru-font-sans);font-weight:900;
+  font-size:44px;line-height:1;letter-spacing:-0.03em;
+  color:var(--ru-ink);margin-bottom:8px;
+}
+.stats-grid .stat .n .small{font-size:26px;color:var(--ru-gray);font-weight:700}
+.stats-grid .stat .l{
+  font-family:var(--ru-font-mono);font-size:11px;font-weight:600;
+  letter-spacing:0.15em;text-transform:uppercase;color:var(--ru-gray);
+}
+
+/* SECTIONS */
+section.sec{padding:72px 0}
+section.sec.alt{background:var(--ru-bg-soft)}
+
+.sec-eyebrow{
+  font-family:var(--ru-font-mono);font-size:12px;font-weight:700;
+  letter-spacing:0.2em;text-transform:uppercase;color:var(--ru-blue);
+  margin-bottom:12px;display:block;
+}
+
+h2.sec-h{
+  font-family:var(--ru-font-sans);font-weight:900;
+  font-size:36px;line-height:1.08;letter-spacing:-0.025em;
+  color:var(--ru-ink);margin-bottom:16px;
+}
+h2.sec-h .serif{
+  font-family:var(--ru-font-serif);font-style:italic;font-weight:400;
+  color:var(--ru-blue);display:block;font-size:34px;letter-spacing:-0.01em;
+}
+
+h3.sub-h{
+  font-family:var(--ru-font-sans);font-weight:900;font-size:24px;
+  letter-spacing:-0.02em;color:var(--ru-blue-dark);
+  margin:40px 0 16px;
+}
+h4.mini-h{
+  font-family:var(--ru-font-sans);font-weight:800;font-size:18px;
+  letter-spacing:-0.01em;color:var(--ru-ink);
+  margin:28px 0 10px;
+}
+
+.sec p{
+  font-size:16.5px;line-height:1.65;color:var(--ru-ink);
+  margin-bottom:16px;
+}
+.sec p.lead{font-size:18px;color:var(--ru-ink)}
+.sec p .em-italic{font-family:var(--ru-font-serif);font-style:italic;color:var(--ru-blue-dark)}
+
+.sec ul, .sec ol{margin:12px 0 20px 0;padding-left:0;list-style:none}
+.sec ul li, .sec ol li{
+  position:relative;padding-left:24px;
+  font-size:16.5px;line-height:1.6;color:var(--ru-ink);
+  margin-bottom:10px;
+}
+.sec ul li::before{
+  content:'';position:absolute;left:0;top:10px;
+  width:8px;height:8px;border-radius:50%;
+  background:var(--ru-yellow);
+}
+.sec ol{counter-reset:ol-count}
+.sec ol li{counter-increment:ol-count}
+.sec ol li::before{
+  content:counter(ol-count);position:absolute;left:0;top:1px;
+  width:20px;height:20px;border-radius:50%;
+  background:var(--ru-yellow);color:var(--ru-blue-dark);
+  font-family:var(--ru-font-mono);font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+
+.sec b, .sec strong{font-weight:700;color:var(--ru-ink)}
+
+.sec a{color:var(--ru-blue);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:2px}
+.sec a:hover{color:var(--ru-blue-dark)}
+
+/* CALLOUT */
+.callout{
+  background:rgba(221,255,77,0.22);
+  border-left:4px solid var(--ru-yellow);
+  border-radius:0 var(--ru-r-xl) var(--ru-r-xl) 0;
+  padding:24px 28px;margin:28px 0;
+}
+.callout p{font-size:16.5px;color:var(--ru-ink);margin-bottom:0;font-weight:500}
+.callout p + p{margin-top:10px}
+
+/* QUOTE / PULL */
+.pull-q{
+  font-family:var(--ru-font-serif);font-style:italic;font-weight:400;
+  font-size:26px;line-height:1.3;color:var(--ru-blue-dark);
+  padding:20px 0 20px 32px;border-left:3px solid var(--ru-blue);
+  margin:28px 0;letter-spacing:-0.01em;
+}
+
+/* PROMPT / CODE BLOCK */
+.code-block{
+  background:#0b1020;border-radius:var(--ru-r-xl);
+  padding:28px 28px;margin:24px 0;
+  font-family:var(--ru-font-mono);font-size:13.5px;line-height:1.65;
+  color:#d4e0ff;overflow-x:auto;
+  position:relative;
+}
+.code-block .code-head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-bottom:18px;margin-bottom:18px;
+  border-bottom:1px solid rgba(212,224,255,0.12);
+}
+.code-block .code-head .tag{
+  font-family:var(--ru-font-mono);font-size:11px;font-weight:700;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--ru-yellow);
+}
+.code-block .copy-btn{
+  font-family:var(--ru-font-mono);font-size:11px;font-weight:600;
+  letter-spacing:0.12em;text-transform:uppercase;
+  background:rgba(212,224,255,0.08);color:#d4e0ff;
+  border:1px solid rgba(212,224,255,0.15);
+  padding:6px 12px;border-radius:var(--ru-r-pill);
+  cursor:pointer;transition:background 0.15s;
+}
+.code-block .copy-btn:hover{background:rgba(212,224,255,0.15)}
+.code-block .copy-btn.copied{background:var(--ru-yellow);color:var(--ru-blue-dark);border-color:var(--ru-yellow)}
+.code-block pre{white-space:pre-wrap;word-break:break-word;font-family:inherit;margin:0}
+.code-block .comment{color:#7c8aa8}
+.code-block .string{color:#b8ff8a}
+.code-block .key{color:#ffd66e}
+
+/* STAT GRID (inside fingerprint) */
+.mini-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+  margin:24px 0;
+}
+.mini-stats .m{
+  background:#fff;border:1px solid rgba(11,16,32,0.06);
+  border-radius:var(--ru-r-lg);padding:20px 22px;
+}
+.mini-stats .m .n{
+  font-family:var(--ru-font-sans);font-weight:900;font-size:28px;
+  letter-spacing:-0.025em;color:var(--ru-ink);margin-bottom:4px;line-height:1;
+}
+.mini-stats .m .l{
+  font-family:var(--ru-font-mono);font-size:10.5px;font-weight:600;
+  letter-spacing:0.14em;text-transform:uppercase;color:var(--ru-gray);
+}
+
+/* MOMENT CARD */
+.moment-card{
+  background:#fff;border:1px solid rgba(11,16,32,0.08);
+  border-radius:var(--ru-r-xl);padding:28px 30px;
+  margin-bottom:18px;
+  box-shadow:var(--ru-shadow-card);
+}
+.moment-card .moment-head{
+  display:flex;justify-content:space-between;align-items:baseline;gap:16px;
+  margin-bottom:14px;flex-wrap:wrap;
+}
+.moment-card h4{
+  font-family:var(--ru-font-sans);font-weight:900;font-size:20px;
+  letter-spacing:-0.02em;color:var(--ru-ink);margin:0;
+}
+.moment-card .moment-when{
+  font-family:var(--ru-font-mono);font-size:11px;font-weight:600;
+  letter-spacing:0.14em;text-transform:uppercase;color:var(--ru-blue);
+}
+.moment-card .moment-row{display:flex;gap:12px;margin-bottom:8px;font-size:15px;line-height:1.5}
+.moment-card .moment-row .label{
+  font-family:var(--ru-font-mono);font-size:10.5px;font-weight:700;
+  letter-spacing:0.12em;text-transform:uppercase;color:var(--ru-gray);
+  flex-shrink:0;width:88px;padding-top:3px;
+}
+.moment-card .moment-row .val{color:var(--ru-ink);flex:1}
+.moment-card .moment-row .val.theme-pills{display:flex;flex-wrap:wrap;gap:6px}
+.moment-card .moment-row .val.theme-pills span{
+  background:rgba(61,104,245,0.08);color:var(--ru-blue-dark);
+  font-family:var(--ru-font-mono);font-size:11px;font-weight:600;
+  letter-spacing:0.02em;padding:3px 10px;border-radius:var(--ru-r-pill);
+}
+
+/* MODE CARDS */
+.mode-grid{display:grid;grid-template-columns:1fr;gap:16px;margin:24px 0}
+.mode-card{
+  background:#fff;border:1px solid rgba(11,16,32,0.08);
+  border-radius:var(--ru-r-lg);padding:22px 26px;
+}
+.mode-card.top{border-color:var(--ru-yellow);background:rgba(221,255,77,0.08)}
+.mode-card h4{margin:0 0 6px 0;font-family:var(--ru-font-sans);font-weight:900;font-size:17px;color:var(--ru-blue-dark);letter-spacing:-0.015em}
+.mode-card h4 .tag{font-family:var(--ru-font-mono);font-size:10.5px;font-weight:600;letter-spacing:0.12em;color:var(--ru-gray);margin-left:10px}
+.mode-card p{font-size:15px;line-height:1.55;color:var(--ru-ink);margin:6px 0}
+.mode-card .mode-warn{font-family:var(--ru-font-mono);font-size:12px;color:#b45309;margin-top:6px;font-weight:600}
+
+/* DO / DONT */
+.dodont{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:24px 0}
+.dodont > div{border-radius:var(--ru-r-lg);padding:22px 26px;border:1.5px solid}
+.dodont .do{background:rgba(221,255,77,0.15);border-color:rgba(221,255,77,0.6)}
+.dodont .dont{background:rgba(11,16,32,0.035);border-color:rgba(11,16,32,0.08)}
+.dodont h4{font-family:var(--ru-font-mono);font-size:12px;font-weight:700;letter-spacing:0.2em;margin:0 0 14px 0;text-transform:uppercase}
+.dodont .do h4{color:#057a55}
+.dodont .dont h4{color:var(--ru-gray)}
+.dodont ul{margin:0;padding:0;list-style:none}
+.dodont ul li{padding-left:20px;position:relative;font-size:14.5px;line-height:1.5;margin-bottom:8px;color:var(--ru-ink)}
+.dodont .do ul li::before{content:'✓';position:absolute;left:0;top:-1px;color:#057a55;font-weight:700}
+.dodont .dont ul li::before{content:'✕';position:absolute;left:0;top:-1px;color:var(--ru-gray);font-weight:700}
+
+/* SCORE TABLE */
+.score-wrap{
+  background:#fff;border:1px solid rgba(11,16,32,0.08);
+  border-radius:var(--ru-r-xl);padding:30px 32px;margin:24px 0;
+  box-shadow:var(--ru-shadow-card);
+}
+.score-wrap table{width:100%;border-collapse:collapse;margin:16px 0}
+.score-wrap thead th{
+  font-family:var(--ru-font-mono);font-size:11px;font-weight:700;
+  letter-spacing:0.14em;text-transform:uppercase;color:var(--ru-gray);
+  text-align:left;padding:12px 16px;border-bottom:1px solid rgba(11,16,32,0.08);
+  background:var(--ru-bg-soft);
+}
+.score-wrap tbody td{padding:14px 16px;border-bottom:1px solid rgba(11,16,32,0.06);font-size:15px;color:var(--ru-ink)}
+.score-wrap tbody td:first-child{font-weight:700;color:var(--ru-blue-dark)}
+.score-wrap tbody td:nth-child(2){font-family:var(--ru-font-mono);font-weight:700;color:var(--ru-ink)}
+
+/* STEP / PATH CARDS */
+.path-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:22px 0}
+.path-card{
+  background:#fff;border:1px solid rgba(11,16,32,0.08);
+  border-radius:var(--ru-r-xl);padding:26px 28px;
+}
+.path-card .tag{
+  font-family:var(--ru-font-mono);font-size:11px;font-weight:700;
+  letter-spacing:0.15em;text-transform:uppercase;color:var(--ru-blue);
+  margin-bottom:8px;
+}
+.path-card h4{font-family:var(--ru-font-sans);font-weight:900;font-size:19px;color:var(--ru-ink);margin:0 0 8px 0;letter-spacing:-0.02em}
+.path-card p{font-size:14.5px;line-height:1.55;color:var(--ru-gray);margin:0}
+
+/* CTA SECTION */
+.cta-section{
+  background:linear-gradient(135deg,var(--ru-blue) 0%,var(--ru-blue-deep) 100%);
+  color:#fff;padding:80px 36px;border-radius:var(--ru-r-3xl);
+  text-align:center;position:relative;overflow:hidden;
+  margin:40px 0 80px;
+}
+.cta-section::before{
+  content:'';position:absolute;top:-40%;right:-20%;
+  width:60%;height:160%;
+  background:radial-gradient(ellipse,rgba(221,255,77,0.18) 0%,transparent 60%);
+}
+.cta-section > *{position:relative;z-index:2}
+.cta-section .eyebrow{
+  display:inline-block;font-family:var(--ru-font-mono);font-size:12px;
+  font-weight:700;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--ru-yellow);background:rgba(221,255,77,0.12);
+  padding:8px 16px;border-radius:var(--ru-r-pill);margin-bottom:20px;
+}
+.cta-section h2{
+  font-family:var(--ru-font-sans);font-weight:900;font-size:44px;
+  line-height:1.05;letter-spacing:-0.03em;color:#fff;margin-bottom:18px;
+}
+.cta-section h2 .serif{
+  display:block;font-family:var(--ru-font-serif);font-style:italic;
+  font-weight:400;color:var(--ru-yellow);font-size:42px;
+  letter-spacing:-0.01em;margin-top:4px;
+}
+.cta-section p{
+  font-size:17px;line-height:1.6;color:rgba(255,255,255,0.85);
+  max-width:600px;margin:0 auto 32px;
+}
+.cta-section .btn-hero{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--ru-yellow);color:var(--ru-blue-dark);
+  font-family:var(--ru-font-sans);font-weight:800;font-size:17px;
+  padding:18px 32px;border-radius:var(--ru-r-pill);
+  text-decoration:none;box-shadow:var(--ru-shadow-btn-y);
+  transition:transform 0.15s;letter-spacing:-0.01em;
+}
+.cta-section .btn-hero:hover{transform:translateY(-2px)}
+
+/* CLOSING NOTE */
+.closing-note{
+  background:var(--ru-bg-soft);padding:50px 0;
+  border-top:1px solid rgba(11,16,32,0.06);
+}
+.closing-note p{font-size:17px;line-height:1.65;color:var(--ru-ink);margin-bottom:14px}
+.closing-note .sign{font-family:var(--ru-font-serif);font-style:italic;font-size:22px;color:var(--ru-blue-dark);margin-top:20px}
+
+/* FLOAT CTA */
+#float-cta{
+  position:fixed;bottom:24px;right:24px;z-index:500;
+  opacity:0;pointer-events:none;transform:translateY(20px);
+  transition:opacity 0.3s ease, transform 0.3s ease;
+}
+#float-cta.visible{opacity:1;pointer-events:auto;transform:translateY(0)}
+#float-cta a{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--ru-yellow);color:var(--ru-blue-dark);
+  font-family:var(--ru-font-sans);font-weight:800;font-size:14.5px;
+  padding:14px 22px;border-radius:var(--ru-r-pill);
+  text-decoration:none;box-shadow:var(--ru-shadow-float);
+  letter-spacing:-0.01em;
+}
+
+/* MOBILE */
+@media (max-width:720px){
+  .gate-card{padding:36px 28px}
+  .gate-card h1, .gate-card h1 .serif{font-size:32px}
+  .gate-form{flex-direction:column}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:24px}
+  section.sec{padding:56px 0}
+  h2.sec-h{font-size:30px}
+  h2.sec-h .serif{font-size:28px}
+  .dodont, .path-grid{grid-template-columns:1fr}
+  .mini-stats{grid-template-columns:1fr}
+  .cta-section{padding:56px 24px}
+  .cta-section h2, .cta-section h2 .serif{font-size:32px}
+  .moment-card .moment-row .label{width:auto}
+  .moment-card .moment-row{flex-direction:column;gap:4px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ GATE ═══════════════ -->
+<div id="gate">
+  <div class="gate-bg"></div>
+  <div class="gate-card">
+    <div class="gate-brand">
+      <div class="logo-box">
+        <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+          <path d="M25 40 L25 60 Q25 63 28 63 L33 63 L33 37 L28 37 Q25 37 25 40 Z" stroke="white" stroke-width="6" stroke-linejoin="round" fill="none"/>
+          <path d="M33 35 L78 22 Q82 21 82 25 L82 75 Q82 79 78 78 L33 65 Z" stroke="white" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <div class="wordmark">rallyup</div>
+    </div>
+
+    <span class="gate-badge">free · teardown + prompt stack</span>
+
+    <h1>
+      the voice fingerprint, moments bank, and prompt stack behind any ceo's linkedin.
+      <span class="serif">run on pete caputa.</span>
+    </h1>
+
+    <p class="gate-sub">a writing skill tells claude how to structure a post. a context engine tells it how you sound. pete just open-sourced the writing layer. this is the context layer that sits under it.</p>
+
+    <ul class="gate-bullets">
+      <li>pete's full 9-section voice fingerprint (the live demo)</li>
+      <li>his 10-moment story bank mined from his post archive</li>
+      <li>the scraper prompt (~$0.10 per exec via api)</li>
+      <li>the voice + moments prompts we use internally</li>
+      <li>the scoring formula + gap analysis prompt</li>
+    </ul>
+
+    <form class="gate-form" id="gate-form">
+      <input type="email" id="email-input" placeholder="your email" required>
+      <button type="submit" id="submit-btn">send me the drop</button>
+    </form>
+    <p class="gate-error" id="gate-error">something went wrong. try again?</p>
+
+    <p class="gate-fine">no spam. unsubscribe anytime. by entering your email you're joining alec's newsletter.</p>
+  </div>
+</div>
+
+<!-- ═══════════════ CONTENT ═══════════════ -->
+<div id="content">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div class="hero-brand">
+      <div class="logo-box">
+        <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+          <path d="M25 40 L25 60 Q25 63 28 63 L33 63 L33 37 L28 37 Q25 37 25 40 Z" stroke="white" stroke-width="6" stroke-linejoin="round" fill="none"/>
+          <path d="M33 35 L78 22 Q82 21 82 25 L82 75 Q82 79 78 78 L33 65 Z" stroke="white" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <div class="wordmark">rallyup</div>
+    </div>
+
+    <span class="hero-eyebrow">the pete caputa teardown</span>
+
+    <h1>
+      the voice fingerprint, story bank, and prompt stack we use to analyze any exec's linkedin in 20 minutes.
+      <span class="serif">applied to a real ceo.</span>
+    </h1>
+
+    <p class="hero-sub">pete caputa, ceo of databox, 37k+ followers, just bumped his own linkedin metrics 70% with a claude writing skill he gave away for free. he already has the writing layer covered. what every other ceo is missing is the context layer. the thing that tells claude how to actually sound like them.</p>
+
+    <p class="hero-sub">so we ran our context engine on pete. this is everything it produced, plus the prompts. run them on yourself next.</p>
+
+    <div class="hero-byline">
+      <span>by <b>alec kremins</b>, founder of rallyup</span>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stats-grid">
+    <div class="stat"><div class="n">9</div><div class="l">voice fingerprint sections</div></div>
+    <div class="stat"><div class="n">10</div><div class="l">mined story moments</div></div>
+    <div class="stat"><div class="n">5</div><div class="l">copy-paste prompts</div></div>
+    <div class="stat"><div class="n">20<span class="small">min</span></div><div class="l">per exec, end-to-end</div></div>
+  </div>
+</div>
+
+<!-- WHAT YOU JUST OPTED IN FOR -->
+<section class="sec">
+  <div class="wrap">
+    <span class="sec-eyebrow">what you just opted in for</span>
+    <h2 class="sec-h">why pete is the test case.</h2>
+
+    <p class="lead">pete is the perfect exec to run this engine on. he already posts. he already has a system. he already knows his metrics. he already gave his writing skill away publicly. the one thing he hasn't done is document the layer underneath all of that: his voice, his stories, his signature moves.</p>
+
+    <p>what you're about to read:</p>
+    <ol>
+      <li><b>pete's full voice fingerprint</b>. the 9-section structured breakdown we produce for every exec we onboard.</li>
+      <li><b>pete's moments bank</b>. 10 specific lived stories mined from his post archive.</li>
+      <li><b>pete's score</b>. the consistency + quality diagnostic.</li>
+      <li><b>the prompt stack</b>. the 5 prompts that produced all of the above. copy-paste ready. run them on yourself next.</li>
+    </ol>
+
+    <div class="callout">
+      <p><b>fair warning:</b> the pete analysis below uses a corpus of 9 verified posts spanning 3 years. our normal engine runs on 100. the full-corpus fingerprint would be sharper on every axis. 9 is enough to show the shape of what the engine does.</p>
+    </div>
+
+    <p>let's get it.</p>
+  </div>
+</section>
+
+<!-- PART 1 VOICE FINGERPRINT -->
+<section class="sec alt">
+  <div class="wrap">
+    <span class="sec-eyebrow">part 1</span>
+    <h2 class="sec-h">pete caputa's voice fingerprint.</h2>
+    <p class="lead">the 9-section structured output we produce for every exec we onboard. every claim below is backed by a verbatim line from his post archive. no invented examples.</p>
+
+    <h3 class="sub-h">1. core identity</h3>
+    <p>peter caputa iv is the ceo of databox, an ai-powered analytics platform serving 20,000+ businesses and 1,200+ professional services firms. before databox he spent 9 years as the founder and leader of the hubspot solutions partner program, where he helped thousands of agencies scale to multi-million-dollar exits. based in boston, ~20 years building b2b revenue systems. his linkedin reads as a ceo-as-practitioner feed: he writes as someone actively running the plays he's describing, not commenting from above.</p>
+
+    <h3 class="sub-h">2. voice archetype</h3>
+    <p class="lead"><b>the pragmatic contrarian.</b></p>
+    <p>he takes the conventional playbook, names what it costs, and hands the reader a scrappier version of it. he's earned the right to disagree publicly because he's run both sides (hubspot enterprise and databox startup), and his critiques always come with 3-5 numbered alternatives. he's not a dunker. he's an operator who thinks cutting-edge advice doesn't fit 99% of the people reading it.</p>
+
+    <h3 class="sub-h">3. style fingerprint</h3>
+
+    <h4 class="mini-h">3a. sentence mechanics</h4>
+    <div class="mini-stats">
+      <div class="m"><div class="n">~15</div><div class="l">avg words / sentence</div></div>
+      <div class="m"><div class="n">mixed</div><div class="l">length variance</div></div>
+      <div class="m"><div class="n">5/10</div><div class="l">fragment frequency</div></div>
+    </div>
+    <ul>
+      <li><b>pov:</b> first-person singular dominant. switches to "we/our" for databox team. switches to "you" when giving advice.</li>
+      <li><b>verb patterns:</b> active voice. present tense for claims. past tense for anecdote setup.</li>
+    </ul>
+    <p class="em-italic" style="margin-top:18px">verbatim rhythm samples from the corpus:</p>
+    <div class="pull-q">"this is the exact advice i used to give in 2010. publish more blog posts to get more search traffic. the problem? it doesn't work anymore."</div>
+    <div class="pull-q">"you shouldn't need a computer science or advanced mathematics degree to get insights out of your data."</div>
+
+    <h4 class="mini-h">3b. paragraph rhythm</h4>
+    <ul>
+      <li>avg 3-6 sentences per paragraph (denser than most linkedin writers)</li>
+      <li>natural paragraph breaks, not aggressive one-per-line</li>
+      <li>numbered emoji (1️⃣ 2️⃣ 3️⃣) or arrow bullets (➡️) break up the prose</li>
+      <li>visual rhythm: "prose-then-payoff". 2-3 paragraph argument followed by an enumerated action list</li>
+    </ul>
+
+    <h4 class="mini-h">3c. opening patterns (5 distinct)</h4>
+    <ol>
+      <li><b>specific-anecdote opener.</b> grounds the post in a real conversation. <span class="em-italic">"the other day, an agency owner told me they were going to ramp up their content production..."</span></li>
+      <li><b>direct-quote opener.</b> leads with a quoted message. <span class="em-italic">"'hey peter, i wanted to follow up with another email because i didn't hear back from you...'"</span></li>
+      <li><b>bold data claim.</b> specific metric upfront. <span class="em-italic">"in the last 3 months, my linkedin posts have racked up 70% more impressions..."</span></li>
+      <li><b>contrarian declaration.</b> states the counterintuitive with no setup. <span class="em-italic">"'build a media company' is such crazy advice for a small business."</span></li>
+      <li><b>product value proposition.</b> opens with what the product enables. <span class="em-italic">"with the launch of databox analytics, i believe we've developed the easiest way to monitor, benchmark, predict..."</span></li>
+    </ol>
+
+    <h4 class="mini-h">3d. closing patterns</h4>
+    <ul>
+      <li><b>single-sentence imperative cta.</b> "leave a comment and connect with me if you want to come."</li>
+      <li><b>summative principle.</b> "think like a media company. just don't be in the business of financing media production."</li>
+      <li><b>bold wager.</b> "i'll wager that it'll be 10x better than writing 48 blog posts."</li>
+      <li><b>future tease.</b> "stay tuned for a boatload of announcements."</li>
+      <li><b>ps wink.</b> "ps. notice i didn't say generative ai once, but here you go."</li>
+    </ul>
+
+    <h4 class="mini-h">3e. connectors &amp; transitions</h4>
+    <p>real pivot phrases from the corpus:</p>
+    <ul>
+      <li><b>"the problem?"</b> fragment as pivot. his signature move.</li>
+      <li><b>"so, how can you..."</b> pivot to the solution section.</li>
+      <li><b>"that's especially true if..."</b> narrowing a claim.</li>
+      <li><b>"that's when he suggested..."</b> narrative pivot.</li>
+      <li><b>"here's 3 things..."</b> list intro.</li>
+      <li><b>"want some actionable advice?"</b> rhetorical pivot to payoff.</li>
+      <li><b>"all that said..."</b> concession before the turn.</li>
+      <li><b>"the truth is..."</b> introspective pivot.</li>
+    </ul>
+
+    <h4 class="mini-h">3f. signature punctuation &amp; formatting</h4>
+    <ul>
+      <li><b>em-dash / double-hyphen (--).</b> used frequently. comfortable with dashes as interruption.</li>
+      <li><b>ampersand (&amp;)</b> substitutes for "and" in list-like contexts.</li>
+      <li><b>"really, really, really" triple.</b> signature intensifier.</li>
+      <li><b>numbered emoji 1️⃣ 2️⃣ 3️⃣.</b> appears in nearly every actionable-advice post as the payoff structure.</li>
+      <li><b>arrow emoji ➡️ and →.</b> for sub-lists and enumeration.</li>
+      <li><b>parenthetical asides.</b> frequent, for caveats and clarifications.</li>
+      <li><b>all-caps for emphasis.</b> rare but present: "ANY credit", "NOT".</li>
+      <li><b>ps / p.s.</b> appears in product launches as a wink.</li>
+      <li><b>hashtags.</b> sparse, occasionally 2-4 per post in older posts.</li>
+      <li><b>ellipsis "..."</b> used at list ends and for trailing thoughts.</li>
+    </ul>
+
+    <h4 class="mini-h">3g. anti-slop overrides</h4>
+    <p>patterns that would be banned for most writers but are signature for pete.</p>
+    <ul>
+      <li><b>em-dashes.</b> OVERRIDE. they're part of his style.</li>
+      <li><b>"really, really, really" triple.</b> PARTIAL. allowed as intensifier.</li>
+      <li><b>rhetorical question-then-answer fragment.</b> PARTIAL. "the problem? it doesn't work anymore." is rhythmic signature.</li>
+      <li><b>numbered emoji lists.</b> OVERRIDE. his load-bearing structural move in mode a.</li>
+    </ul>
+
+    <h3 class="sub-h">4. vocabulary</h3>
+    <h4 class="mini-h">favor (from corpus):</h4>
+    <ul>
+      <li>"actionable" / "actionable advice". pivot word before nearly every list.</li>
+      <li>"10x". specific improvement claim.</li>
+      <li>"really" (as triple intensifier)</li>
+      <li>"here's 3 things" / "here's a few examples"</li>
+      <li>"performance", "performance data", "kpi", "benchmark"</li>
+      <li>"arr", "saas", "mrr"</li>
+      <li>"partners" (databox has 1,200+)</li>
+      <li>"agency owner", "professional services firm" (his icp vocabulary)</li>
+      <li>"this doesn't work anymore". core dismissal phrase.</li>
+      <li>"you shouldn't need..." signature pain-point structure.</li>
+      <li>"crazy advice" / "bad advice"</li>
+    </ul>
+
+    <h4 class="mini-h">signature lines (load-bearing):</h4>
+    <div class="pull-q">"sitting down &amp; writing something is the last step of the process."</div>
+    <div class="pull-q">"think like a media company. just don't be in the business of financing media production."</div>
+    <div class="pull-q">"you shouldn't need [x] to get [y]."</div>
+
+    <h4 class="mini-h">avoid:</h4>
+    <ul>
+      <li>"leverage", "synergy", "paradigm", "ecosystem" (0 appearances)</li>
+      <li>"game-changer", "revolutionize", "disrupt" (0)</li>
+      <li>"delve", "unlock" (0)</li>
+      <li>heavy emoji decoration (he uses structural emoji only)</li>
+      <li>binary "not x, it's y" (he uses softer "x, but you should actually do y")</li>
+    </ul>
+
+    <h3 class="sub-h">5. content-type modes</h3>
+
+    <div class="mode-grid">
+      <div class="mode-card top">
+        <h4>mode a: contrarian advice <span class="tag">top performer</span></h4>
+        <p><b>trigger:</b> common b2b advice is wrong for most of the audience.</p>
+        <p><b>structure:</b> specific-anecdote hook → why it's broken → 3-5 numbered alternatives (1️⃣ 2️⃣ 3️⃣) → summative principle or bold wager.</p>
+        <p><b>top example:</b> "the other day, an agency owner told me..." (465 reactions, 73 comments).</p>
+        <p class="mode-warn">warning: tanks without the numbered payoff. the list is load-bearing.</p>
+      </div>
+
+      <div class="mode-card">
+        <h4>mode b: event / live session invite</h4>
+        <p><b>trigger:</b> hosting a mastermind, webinar, live call, product demo.</p>
+        <p><b>structure:</b> question + specific credibility numbers (arr, sessions, attendees) → agenda as arrow list → presenter credentials → comment-keyword cta.</p>
+        <p><b>example:</b> the 5-phase claude skill invite. <span class="em-italic">"tomorrow at 10am ET, i'm walking ~20 people through the whole thing live."</span></p>
+      </div>
+
+      <div class="mode-card">
+        <h4>mode c: product launch</h4>
+        <p><b>trigger:</b> new databox feature or product enhancement.</p>
+        <p><b>structure:</b> value proposition → "you shouldn't need [x]" repetition (4-6 items) → mission tie-back → link + ps wink.</p>
+        <p><b>example:</b> databox analytics launch (77R, 16C).</p>
+      </div>
+
+      <div class="mode-card">
+        <h4>mode d: ai practitioner reflection</h4>
+        <p><b>trigger:</b> pete trying a new ai tool or changing his stance.</p>
+        <p><b>structure:</b> admission → specific moment with a named peer → concrete tactics.</p>
+        <p><b>examples:</b> paul roetzer chatgpt post (67R, 41C). the 5-phase claude skill post.</p>
+      </div>
+
+      <div class="mode-card">
+        <h4>mode e: team / travel</h4>
+        <p><b>trigger:</b> team offsite, international team visit.</p>
+        <p><b>structure:</b> specific place + named people → what he learned → future tease.</p>
+        <p><b>example:</b> ptuj slovenia trip (85R, 6C).</p>
+      </div>
+
+      <div class="mode-card">
+        <h4>mode f: short reaction / satire</h4>
+        <p><b>trigger:</b> a bad piece of content or sales tactic pete wants to name.</p>
+        <p><b>structure:</b> quote the bad thing → savage rewrite → invite reaction.</p>
+        <p><b>top example:</b> passive-aggressive cold email rewrite (57R, 24C).</p>
+        <p class="mode-warn">warning: lowest-performing mode when the satire is gentle.</p>
+      </div>
+    </div>
+
+    <h3 class="sub-h">6. do / don't</h3>
+    <div class="dodont">
+      <div class="do">
+        <h4>do</h4>
+        <ul>
+          <li>name specific people (paul roetzer, april dunford, jeremiah rizzo)</li>
+          <li>include specific numbers early (arr, session count, percentages)</li>
+          <li>lead with a concrete moment or direct quote</li>
+          <li>end with 3-5 numbered alternatives when giving advice</li>
+          <li>include self-deprecation ("i can't take ANY credit", "late adopter")</li>
+          <li>tie back to databox organically, as the practitioner</li>
+        </ul>
+      </div>
+      <div class="dont">
+        <h4>don't</h4>
+        <ul>
+          <li>start with philosophical musings or generic openers</li>
+          <li>write opinions without the numbered payoff</li>
+          <li>stack decorative emoji (structural only: 1️⃣ ➡️)</li>
+          <li>use "disruptive", "revolutionary", "game-changing"</li>
+          <li>write abstract advice without a named peer or specific company</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="sub-h">7. tone markers</h3>
+    <p class="lead">pragmatic · contrarian-but-not-cynical · self-aware · practitioner-first · warm with his team · respectful of peers · data-drenched</p>
+
+    <h3 class="sub-h">8. performance snapshot (sampled corpus)</h3>
+    <ul>
+      <li><b>top post (this sample):</b> "the other day, an agency owner told me..." 465 reactions, 73 comments.</li>
+      <li><b>best mode:</b> mode a (contrarian advice with numbered payoff).</li>
+      <li><b>weakest mode:</b> mode f (short reaction) when satire is gentle.</li>
+      <li><b>follower count:</b> 37,308 as of 2026-04-24.</li>
+      <li><b>self-reported recent metrics:</b> 123k → 209k impressions/month (+70%), 651 → 964 comments/month (+48%).</li>
+      <li><b>estimated quality score:</b> 6/10 (1.2× benchmark, based on median engagement rate across sample).</li>
+      <li><b>estimated consistency score:</b> 8-9/10 (based on stated recent cadence ≈ 2-4 posts/week).</li>
+    </ul>
+
+    <h3 class="sub-h">9. signature patterns to preserve</h3>
+    <ol>
+      <li><b>anecdote-first opener.</b> a real conversation, a specific date, or a direct quote.</li>
+      <li><b>the numbered payoff (1️⃣ 2️⃣ 3️⃣).</b> load-bearing in mode a.</li>
+      <li><b>the "really, really, really" triple.</b> rare but distinctive intensifier.</li>
+      <li><b>the fragment-as-pivot.</b> "the problem?" / "it's not practical." / "the truth is..."</li>
+      <li><b>the named-peer grounding.</b> paul roetzer, april dunford, specific databox team members.</li>
+      <li><b>the self-deprecating aside.</b> "i can't take ANY credit", "late adopter", parenthetical admissions.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- PART 2 MOMENTS BANK -->
+<section class="sec">
+  <div class="wrap">
+    <span class="sec-eyebrow">part 2</span>
+    <h2 class="sec-h">pete's moments bank.</h2>
+    <p class="lead">10 specific lived stories mined from pete's posts. raw material for any future ghostwritten post. specific dates, named people, real numbers, nothing invented.</p>
+
+    <div class="moment-card">
+      <div class="moment-head">
+        <h4>1. the hubspot solutions partner program (9 years)</h4>
+        <span class="moment-when">~2005 → 2015</span>
+      </div>
+      <div class="moment-row"><span class="label">setting</span><span class="val">hubspot, as founder of the solutions partner program.</span></div>
+      <div class="moment-row"><span class="label">what happened</span><span class="val">built and ran the partner program for 9 years. helped thousands of agencies go "from their dining room table to multi-million dollar exits" by teaching them to sell and deliver a measurable, compounding roi.</span></div>
+      <div class="moment-row"><span class="label">what shifted</span><span class="val">became his origin as a b2b revenue systems thinker. everything he does at databox is downstream of this.</span></div>
+      <div class="moment-row"><span class="label">themes</span><span class="val theme-pills"><span>partner ecosystems</span><span>agency scaling</span></span></div>
+    </div>
+
+    <div class="moment-card">
+      <div class="moment-head">
+        <h4>2. the lil' kim line</h4>
+        <span class="moment-when">ongoing bio signature</span>
+      </div>
+      <div class="moment-row"><span class="label">setting</span><span class="val">linkedin about section.</span></div>
+      <div class="moment-row"><span class="label">what happened</span><span class="val">pete's bio opens: "i help the leaders of professional services firms leverage data to get the respect, power and money they deserve, in that order. (sorry lil' kim, you had it backwards.)"</span></div>
+      <div class="moment-row"><span class="label">what shifted</span><span class="val">deliberate inversion of the typical "make more money" agency pitch. respect first, money last.</span></div>
+      <div class="moment-row"><span class="label">themes</span><span class="val theme-pills"><span>positioning</span><span>professional services</span></span></div>
+    </div>
+
+    <div class="moment-card">
+      <div class="moment-head">
+        <h4>3. paul roetzer's "you're using it wrong"</h4>
+        <span class="moment-when">may 2023</span>
+      </div>
+      <div class="moment-row"><span class="label">setting</span><span class="val">conversation with paul roetzer about chatgpt.</span></div>
+      <div class="moment-row"><span class="label">what happened</span><span class="val">pete told paul "it's useless. it spits out crap i'd never publish." paul: "you're using it wrong." paul suggested two uses: outlines and editing. pete started with editing. paragraph in, shorter version out, then second and third versions.</span></div>
+      <div class="moment-row"><span class="label">what shifted</span><span class="val">unblocked pete on ai. became his gateway to using chatgpt as an editor.</span></div>
+      <div class="moment-row"><span class="label">detail to keep</span><span class="val">"at hubspot, i had an editor. but, at databox, i'm often the editor."</span></div>
+      <div class="moment-row"><span class="label">themes</span><span class="val theme-pills"><span>ai workflows</span><span>peer learning</span></span></div>
+    </div>
+
+    <div class="moment-card">
+      <div class="moment-head">
+        <h4>4. building the 5-phase claude writing skill</h4>
+        <span class="moment-when">q1 2026</span>
+      </div>
+      <div class="moment-row"><span class="label">setting</span><span class="val">pete's own linkedin content workflow.</span></div>
+      <div class="moment-row"><span class="label">what happened</span><span class="val">built a claude skill that runs every post through 5 phases (research, angle brainstorming, hook validation, outline, drafting). gave it away for free after 100+ asked for it. databox sales team started using it the friday before his announcement. publishing volume cranked up the next week.</span></div>
+      <div class="moment-row"><span class="label">what shifted</span><span class="val">proved egc works when the input layer is systematized. team publishing volume immediately jumped.</span></div>
+      <div class="moment-row"><span class="label">details to keep</span><span class="val">70% impression lift (123k → 209k/month). 48% comment lift (651 → 964/month). stack = claude + authoredup + databox mcp server.</span></div>
+      <div class="moment-row"><span class="label">themes</span><span class="val theme-pills"><span>ai workflows</span><span>egc</span><span>sales-enablement</span></span></div>
+    </div>
+
+    <div class="moment-card">
+      <div class="moment-head">
+        <h4>5. the gary magnone kpi-spike demo</h4>
+        <span class="moment-when">april 2026</span>
+      </div>
+      <div class="moment-row"><span class="label">setting</span><span class="val">product launch moment for databox ai analyst + mcp server.</span></div>
+      <div class="moment-row"><span class="label">what happened</span><span class="val">gary magnone (fractional ops leader) demoed how he diagnosed a kpi spike using claude + databox mcp. claude reverse-engineered the metrics, traced the spike to ga4, narrowed to direct channel, surfaced the specific landing pages.</span></div>
+      <div class="moment-row"><span class="label">what shifted</span><span class="val">validated the "claude + databox mcp = ai analyst" thesis. became a repeatable demo.</span></div>
+      <div class="moment-row"><span class="label">themes</span><span class="val theme-pills"><span>mcp servers</span><span>ai analytics</span><span>attribution</span></span></div>
+    </div>
+
+    <div class="moment-card">
+      <div class="moment-head">
+        <h4>6. ptuj, slovenia. the engineering team visit</h4>
+        <span class="moment-when">early 2023</span>
+      </div>
+      <div class="moment-row"><span class="label">setting</span><span class="val">ptuj, slovenia. first post-covid visit.</span></div>
+      <div class="moment-row"><span class="label">what happened</span><span class="val">pete and billy macdonald traveled from boston to slovenia. spent the week with the p&amp;e team, customer support leadership, and co-founder davorin gabrovec. team had almost tripled since his last visit. met maya romic (serbia), denis hallai (belgium), emil korpar, nikos ntirlis for the first time in person.</span></div>
+      <div class="moment-row"><span class="label">what shifted</span><span class="val">re-grounded pete in the technical side. reconnected with a global team that had scaled while he was away.</span></div>
+      <div class="moment-row"><span class="label">details to keep</span><span class="val">building rebuilt on roman ruins. futsal court. "get back to my technical roots."</span></div>
+      <div class="moment-row"><span class="label">themes</span><span class="val theme-pills"><span>distributed teams</span><span>international talent</span></span></div>
+    </div>
+
+    <div class="moment-card">
+      <div class="moment-head">
+        <h4>7. the website redesign with jeremiah rizzo</h4>
+        <span class="moment-when">late 2023 / early 2024</span>
+      </div>
+      <div class="moment-row"><span class="label">setting</span><span class="val">databox website + positioning redesign.</span></div>
+      <div class="moment-row"><span class="label">what happened</span><span class="val">davorin started the project. jeremiah rizzo (director of product marketing) took ownership. started with customer interviews using april dunford's positioning framework. design and build all in-house. pete: "i can't take ANY credit for this project. in fact, i hate doing website redesigns."</span></div>
+      <div class="moment-row"><span class="label">what shifted</span><span class="val">databox hit a point where new features had changed the value prop, making it the right time to redesign.</span></div>
+      <div class="moment-row"><span class="label">details to keep</span><span class="val">~8M arr, 250k monthly sessions, 6k monthly free signups.</span></div>
+      <div class="moment-row"><span class="label">themes</span><span class="val theme-pills"><span>positioning</span><span>april dunford</span><span>pm-led growth</span></span></div>
+    </div>
+
+    <div class="moment-card">
+      <div class="moment-head">
+        <h4>8. the databox analytics launch</h4>
+        <span class="moment-when">september 2023</span>
+      </div>
+      <div class="moment-row"><span class="label">setting</span><span class="val">major product enhancement announcement.</span></div>
+      <div class="moment-row"><span class="label">what happened</span><span class="val">pete announced databox analytics as "the easiest way to monitor, benchmark, predict and ultimately improve your entire company's performance from one interface." used the "you shouldn't need [x]" × 4 repetition.</span></div>
+      <div class="moment-row"><span class="label">what shifted</span><span class="val">positioning moment. databox moved from dashboards-only to full analytics + insights.</span></div>
+      <div class="moment-row"><span class="label">details to keep</span><span class="val">ps wink: "notice i didn't say generative ai once, but here you go. we got that too..."</span></div>
+      <div class="moment-row"><span class="label">themes</span><span class="val theme-pills"><span>positioning</span><span>product launch</span></span></div>
+    </div>
+
+    <div class="moment-card">
+      <div class="moment-head">
+        <h4>9. the "8 articles per month" agency owner</h4>
+        <span class="moment-when">september 2023</span>
+      </div>
+      <div class="moment-row"><span class="label">setting</span><span class="val">conversation with an agency owner.</span></div>
+      <div class="moment-row"><span class="label">what happened</span><span class="val">agency owner was ramping content production from 4 to 8 articles/month. pete: "this is the exact advice i used to give in 2010. publish more blog posts to get more search traffic. the problem? it doesn't work anymore." wrote a 465-reaction post arguing writing is the last step. collaboration with experts, surveys, podcasts, and data sets should come first.</span></div>
+      <div class="moment-row"><span class="label">what shifted</span><span class="val">crystallized his anti-"publish more" thesis. signature post on the content production debate.</span></div>
+      <div class="moment-row"><span class="label">details to keep</span><span class="val">"sitting down &amp; writing something is the last step of the process." / "i'll wager that it'll be 10x better than writing 48 blog posts."</span></div>
+      <div class="moment-row"><span class="label">themes</span><span class="val theme-pills"><span>content strategy</span><span>seo decline</span></span></div>
+    </div>
+
+    <div class="moment-card">
+      <div class="moment-head">
+        <h4>10. the passive-aggressive cold email</h4>
+        <span class="moment-when">august 2023</span>
+      </div>
+      <div class="moment-row"><span class="label">setting</span><span class="val">pete's inbox.</span></div>
+      <div class="moment-row"><span class="label">what happened</span><span class="val">received a follow-up cold email: "hey peter, i wanted to follow up with another email because i didn't hear back from you." pete rewrote it savagely: "i spent :10 writing this email 5 days ago. today, i'm spending another :05 to send it again and make you feel guilty for not responding. think you could respond, a**hole?"</span></div>
+      <div class="moment-row"><span class="label">what shifted</span><span class="val">high-engagement satirical post. running theme on b2b sales tactics.</span></div>
+      <div class="moment-row"><span class="label">details to keep</span><span class="val">the satire format (quote, then rewrite with the real subtext). time references (:10 / :05) as the weaponized detail.</span></div>
+      <div class="moment-row"><span class="label">themes</span><span class="val theme-pills"><span>cold outbound</span><span>sales satire</span></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 3 SCORE -->
+<section class="sec alt">
+  <div class="wrap">
+    <span class="sec-eyebrow">part 3</span>
+    <h2 class="sec-h">pete's score.</h2>
+    <p class="lead">the rallyup xy diagnostic plots every exec on two axes: <b>consistency</b> (how reliably they post, 90-day window) and <b>quality</b> (engagement rate vs benchmark).</p>
+
+    <div class="score-wrap">
+      <table>
+        <thead><tr><th>axis</th><th>score</th><th>reasoning</th></tr></thead>
+        <tbody>
+          <tr><td>consistency</td><td>~8-9 / 10</td><td>stated recent cadence of 123k → 209k impressions/month over 3 months suggests 2-4 posts/week sustained.</td></tr>
+          <tr><td>quality</td><td>~6 / 10</td><td>median engagement rate ~1.2× benchmark across sampled posts. recent 70% lift suggests trajectory is upward.</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:18px"><b>benchmark zone:</b> 7.5 / 7.5 on both axes.</p>
+      <p><b>pete's position:</b> upper-right quadrant. already past the "target zone" on consistency, on the upward climb on quality.</p>
+    </div>
+
+    <div class="callout">
+      <p><b>the one move.</b> pete's top posts are all mode a (contrarian advice with numbered payoff). his quality score would accelerate if he shifted the mode mix. less product launches and team updates, more contrarian advice and ai practitioner reflections. he already knows this intuitively. the 5-phase skill post is mode a/d blend and it's performing.</p>
+    </div>
+
+    <p style="font-size:14.5px;color:var(--ru-gray);margin-top:18px"><em>note: estimates from a 9-post sample. full 100-post scrape would sharpen these numbers to ±0.5 on each axis.</em></p>
+  </div>
+</section>
+
+<!-- PART 4 PROMPT STACK -->
+<section class="sec">
+  <div class="wrap">
+    <span class="sec-eyebrow">part 4</span>
+    <h2 class="sec-h">the prompt stack.</h2>
+    <p class="lead">now run it on yourself, your ceo, your head of sales, or any exec whose linkedin matters to your business. 5 prompts. copy-paste ready. ~20 minutes per exec.</p>
+
+    <h3 class="sub-h">step 1. get the posts</h3>
+
+    <div class="path-grid">
+      <div class="path-card">
+        <div class="tag">path a · 5 min</div>
+        <h4>manual</h4>
+        <p>go to the target profile → "see all activity" → "posts" tab → copy the text of their last 30-50 posts into a doc with dates and engagement numbers.</p>
+      </div>
+      <div class="path-card">
+        <div class="tag">path b · ~$0.10</div>
+        <h4>api (reversecontact)</h4>
+        <p>sign up at reversecontact.com for an api key. then run the bash snippet below.</p>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-head">
+        <span class="tag">bash · reversecontact api</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+<pre><span class="comment"># profile</span>
+curl -s -X POST 'https://api.reversecontact.com/v2/fetch/persons' \
+  -H "Authorization: Bearer YOUR_KEY" \
+  -d '{"url": "https://www.linkedin.com/in/USERNAME"}'
+
+<span class="comment"># webhook token for async posts</span>
+curl -s -X POST 'https://webhook.site/token'
+
+<span class="comment"># fire posts request</span>
+curl -s -X POST 'https://api.reversecontact.com/v2/fetch/persons/posts/live' \
+  -H "Authorization: Bearer YOUR_KEY" \
+  -d '{"url": "https://www.linkedin.com/in/USERNAME", "webhookUrl": "https://webhook.site/YOUR_UUID"}'
+
+<span class="comment"># wait 20s, then collect</span>
+curl -s "https://webhook.site/token/YOUR_UUID/requests?sorting=newest&amp;per_page=1"</pre>
+    </div>
+
+    <h3 class="sub-h">step 2. the voice fingerprint prompt</h3>
+    <p>paste this into claude or chatgpt with the post archive below it.</p>
+
+    <div class="code-block">
+      <div class="code-head">
+        <span class="tag">prompt · voice fingerprint</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+<pre>you are a voice analyst. produce a structured "voice fingerprint" of a 
+linkedin writer based on a corpus of their posts.
+
+input: 30-100 linkedin posts with date and engagement numbers where available.
+
+output: a complete voice fingerprint with these 9 sections in exact order. 
+do not skip sections. do not invent examples. every claim must cite a 
+verbatim line from the corpus.
+
+## 1. core identity
+1 paragraph, max 4 sentences. career arc, current role, credibility anchor.
+
+## 2. voice archetype
+one line in "the [adjective] [noun]" format. 2-3 sentence rationale grounded 
+in the corpus.
+
+## 3. style fingerprint
+
+### 3a. sentence mechanics
+- avg sentence length (measure it, count words across 30+ sentences)
+- length variance: consistent / mixed / extreme
+- fragment frequency: 0-10 based on % of sentences &le;3 words
+- pov: first-person singular / plural / you-voice / mix
+- verb patterns: active vs passive, present vs past tendency
+cite 2-3 verbatim sentences.
+
+### 3b. paragraph rhythm
+- avg paragraph length in sentences
+- line-break pattern: one-per-line / clustered / mixed
+- whitespace density
+- visual rhythm (describe it)
+include one real 3-4 paragraph block.
+
+### 3c. opening patterns (find 3-5)
+each pattern: short label + when used + one verbatim example.
+
+### 3d. closing patterns (find 3-5)
+same structure. each closer must tag which content-type mode(s) it fits.
+
+### 3e. connectors &amp; transitions
+5-10 real connector phrases from the corpus.
+
+### 3f. signature punctuation &amp; formatting
+em-dash, ellipsis, emoji, caps, bullets, hashtags, unusual typographic 
+signatures, with rough counts.
+
+### 3g. anti-slop overrides
+patterns that are generally ai slop but are signature for this writer.
+tag each as OVERRIDE / PARTIAL / KEEP-VERBATIM.
+
+## 4. vocabulary
+FAVOR list (10-20 items with rough counts).
+SIGNATURE LINES (3-5 load-bearing recurring lines).
+AVOID list (10-15 items, words never in corpus).
+
+## 5. content-type modes
+classify posts into modes. for each mode: trigger, structural shift from 
+base, 2 verbatim examples with engagement numbers, warnings.
+
+## 6. do / don't
+hard rules. 5-10 items each side.
+
+## 7. tone markers
+5-8 adjectives.
+
+## 8. performance snapshot
+top post, worst format, cadence, language splits.
+
+## 9. signature patterns to preserve
+3-5 bullets of what must never be lost.
+
+rules:
+- no invented examples
+- use numbers, not adjectives
+- if you can't find evidence, leave it out
+- write for the ghostwriter that will consume this, not for a reader
+
+now process the following corpus:
+
+[PASTE POSTS HERE]</pre>
+    </div>
+
+    <h3 class="sub-h">step 3. the moments bank prompt</h3>
+
+    <div class="code-block">
+      <div class="code-head">
+        <span class="tag">prompt · moments bank</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+<pre>you are mining a linkedin post archive for specific lived moments that can 
+be reused as anchors for future content.
+
+input: the same corpus as part 2.
+
+output: 15-25 entries. each entry is a specific, usable story. not an 
+opinion, not a framework.
+
+a moment has: a specific time + a specific place + at least one named 
+person or concrete detail + a shift or realization.
+
+NOT moments: abstract claims, advice without a story, product positioning.
+
+scan for posts that open with: "i remember...", "last week...", "on the 
+day...", "when i was...", a specific timestamp, or a named person in the 
+first 2 sentences.
+
+group by category: career / customer / product / team / personal / 
+industry / founding.
+
+entry format:
+
+### &lt;short label&gt;
+- **when:** &lt;approximate date or era&gt;
+- **category:** &lt;one of the above&gt;
+- **setting:** &lt;1 line&gt;
+- **what happened:** &lt;2-4 sentences with concrete details&gt;
+- **what shifted:** &lt;1-2 sentences on the realization&gt;
+- **details worth keeping:** &lt;bullets with numbers, names, quotes&gt;
+- **themes:** &lt;tags&gt;
+- **safe to use:** &lt;public | with-edits | consent-needed&gt;
+- **source:** &lt;post url or identifier&gt;
+
+hygiene:
+- no inventing. every detail from the corpus only.
+- thin moments: mark "with-edits" and flag what's missing.
+- moments with negative-light third parties: mark "consent-needed".
+- target 15-25 entries. quality over quantity.
+
+now process the following corpus:
+
+[PASTE POSTS HERE]</pre>
+    </div>
+
+    <h3 class="sub-h">step 4. the scoring formula</h3>
+
+    <h4 class="mini-h">consistency (0-10)</h4>
+    <p>count original posts in last 90 days. posts/week = count / 13.</p>
+
+    <div class="score-wrap">
+      <table>
+        <thead><tr><th>posts / week</th><th>score</th></tr></thead>
+        <tbody>
+          <tr><td>5+</td><td>10</td></tr>
+          <tr><td>3-5</td><td>9</td></tr>
+          <tr><td>2-3</td><td>8</td></tr>
+          <tr><td>1-2</td><td>6</td></tr>
+          <tr><td>0.5-1</td><td>4</td></tr>
+          <tr><td>0.25-0.5</td><td>2</td></tr>
+          <tr><td>&lt; 0.25</td><td>1</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4 class="mini-h">quality (0-10)</h4>
+    <p>benchmark = 0.5% engagement rate. engagement = (reactions + comments×3 + reposts×2) / followers.</p>
+    <p>use 90-day window if 10+ posts available. fall back to 180 or 360 days (flag). take the <b>median</b> rate (not mean, mean gets skewed by outliers). divide by 0.005.</p>
+
+    <div class="score-wrap">
+      <table>
+        <thead><tr><th>rate vs benchmark</th><th>score</th></tr></thead>
+        <tbody>
+          <tr><td>4×+</td><td>10</td></tr>
+          <tr><td>3-4×</td><td>9</td></tr>
+          <tr><td>2-3×</td><td>8</td></tr>
+          <tr><td>1.5-2×</td><td>7</td></tr>
+          <tr><td>1-1.5×</td><td>6</td></tr>
+          <tr><td>at benchmark</td><td>5</td></tr>
+          <tr><td>0.5-1×</td><td>4</td></tr>
+          <tr><td>0.25-0.5×</td><td>2</td></tr>
+          <tr><td>below 0.25×</td><td>1</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="sub-h">step 5. the gap analysis prompt</h3>
+
+    <div class="code-block">
+      <div class="code-head">
+        <span class="tag">prompt · gap analysis</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+<pre>you are a gap analysis agent. review a completed voice fingerprint + 
+moments bank + scores, and produce a prioritized expansion plan.
+
+input:
+- voice fingerprint (step 2 output)
+- moments bank (step 3 output)
+- consistency + quality scores (step 4 output)
+- optional: linkedin profile data (experience, skills, languages)
+
+output: structured analysis with 9 categories.
+
+## 1. origin story
+is there a documented "why i do what i do" narrative with a specific moment?
+if missing: highest-impact gap. propose 2-3 interview questions to surface it.
+
+## 2. unnamed frameworks
+does the writer repeat ideas in posts without naming them?
+if found: suggest a name. named frameworks become recognizable ip.
+
+## 3. content series
+does the writer have a named, recurring content series?
+if missing: suggest 2-3 names based on their strongest track.
+
+## 4. language opportunity
+multilingual? if non-english outperforms, flag the asymmetry.
+
+## 5. cross-platform presence
+newsletter / podcast / blog / x / youtube?
+note repurposing opportunities.
+
+## 6. thought leaders &amp; influences
+who does the writer @-mention, quote, or repost?
+shows voice aspiration + positioning ambition.
+
+## 7. underused profile assets
+credibility signals in profile that never appear in posts?
+awards, certifications, patents, board seats, past companies, languages.
+
+## 8. format gaps
+modes they're not using that they should be?
+
+## 9. the one move
+the single highest-leverage change for the next 30 days.
+be specific. not "post more". rather, "shift from 2 posts/week thought-leadership 
+to 3 posts/week mixing thought-leadership and personal story, using the 
+origin moment from the moments bank as the first personal-story post."
+
+output format:
+
+# gap analysis, [name]
+
+## summary
+2-3 sentences: strongest asset, single biggest opportunity.
+
+## high-priority gaps
+1. [gap], [why it matters], [how to fill it]
+2. [gap]...
+3. [gap]...
+
+## expansion opportunities
+cross-platform / language / series naming / framework naming
+
+## the one move
+[single specific change for the next 30 days]
+
+## 10 interview questions to fill gaps
+1. [question], fills: [gap category]
+...
+
+now process the inputs:
+
+VOICE FINGERPRINT: [paste]
+
+MOMENTS BANK: [paste]
+
+SCORES: consistency [X], quality [Y]
+
+PROFILE DATA (optional): [paste]</pre>
+    </div>
+  </div>
+</section>
+
+<!-- HOW TO RUN / WHAT TO DO -->
+<section class="sec alt">
+  <div class="wrap">
+    <span class="sec-eyebrow">how to run it</span>
+    <h2 class="sec-h">20 minutes per exec. once through.</h2>
+
+    <ol>
+      <li><b>scrape</b> (5 min). path a or b from step 1.</li>
+      <li><b>voice fingerprint</b> (5 min). paste step 2 prompt + corpus.</li>
+      <li><b>moments bank</b> (5 min). same corpus, step 3 prompt.</li>
+      <li><b>score</b> (2 min). count posts, calculate median engagement, plug into tables.</li>
+      <li><b>gap analysis</b> (3 min). paste all three outputs into step 5 prompt.</li>
+    </ol>
+
+    <p>run it on your ceo, your head of sales, your top operator. the one you'd want ghostwriting for next.</p>
+
+    <h3 class="sub-h">what to do with the output</h3>
+
+    <ol>
+      <li><b>feed it to your ai ghostwriter.</b> load the voice fingerprint as context before any prompt. you'll see the quality jump immediately.</li>
+      <li><b>plug it into pete's 5-phase claude skill.</b> pete's skill covers research → angle → hook → outline → drafting. our context layer makes claude sound like you across all 5 phases. they stack together natively.</li>
+      <li><b>benchmark quarterly.</b> re-run the scoring formula every 90 days. track the xy score over time. the only honest way to measure if your linkedin strategy is working.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- CLOSING NOTE -->
+<div class="closing-note">
+  <div class="wrap">
+    <p>amazing content comes from amazing context.</p>
+    <p>pete gave away the writing layer. we just gave away the context layer underneath it.</p>
+    <p>if you run this on yourself and the fingerprint surprises you, dm me on linkedin. the most surprising thing is usually the most useful thing.</p>
+    <p class="sign">alec</p>
+    <p style="font-size:14.5px;color:var(--ru-gray);margin-top:14px"><em>ps. shout-out to pete caputa for being the rare ceo who posts his stack, his metrics, and his skill in public. the whole b2b linkedin ecosystem is better for it.</em></p>
+  </div>
+</div>
+
+<!-- CTA SECTION -->
+<section class="sec">
+  <div class="wrap">
+    <div class="cta-section">
+      <div class="eyebrow">the managed version</div>
+      <h2>
+        your executives should own linkedin.
+        <span class="serif">rallyup runs it for them.</span>
+      </h2>
+      <p>the prompts are free. what we do at rallyup is run this system for teams of 5-20 execs, maintain the context graphs, and operate the content engine on top of them week after week. two minutes of approval per week, authentic content that compounds over time.</p>
+      <a href="https://calendar.app.google/SDA5TMRMbqbPQWEn7" target="_blank" class="btn-hero">book a free call with alec →</a>
+    </div>
+  </div>
+</section>
+
+</div><!-- /content -->
+
+<!-- FLOAT CTA -->
+<div id="float-cta">
+  <a href="https://calendar.app.google/SDA5TMRMbqbPQWEn7" target="_blank">book a call with alec →</a>
+</div>
+
+<script>
+// ═══════════════ GATE LOGIC ═══════════════
+const LS_KEY = 'rallyup_lm_pete_teardown';
+const gate = document.getElementById('gate');
+const content = document.getElementById('content');
+const form = document.getElementById('gate-form');
+const input = document.getElementById('email-input');
+const btn = document.getElementById('submit-btn');
+const err = document.getElementById('gate-error');
+
+function unlock(){
+  gate.classList.add('unlocking');
+  setTimeout(() => {
+    gate.style.display = 'none';
+    content.style.display = 'block';
+    document.body.style.overflow = 'auto';
+  }, 500);
+}
+
+if (localStorage.getItem(LS_KEY)){
+  gate.style.display = 'none';
+  content.style.display = 'block';
+} else {
+  document.body.style.overflow = 'hidden';
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = input.value.trim();
+  if (!email || !email.includes('@')) return;
+  btn.disabled = true;
+  btn.textContent = 'sending...';
+  err.classList.remove('show');
+  try {
+    const res = await fetch('/api/subscribe', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email})
+    });
+    if (res.ok){
+      localStorage.setItem(LS_KEY, '1');
+      unlock();
+    } else {
+      err.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'send me the drop';
+    }
+  } catch (e) {
+    err.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = 'send me the drop';
+  }
+});
+
+// ═══════════════ FLOAT CTA ═══════════════
+const floatBtn = document.getElementById('float-cta');
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+  if (scrolled > 0.45) floatBtn.classList.add('visible');
+  else floatBtn.classList.remove('visible');
+});
+
+// ═══════════════ COPY BUTTONS ═══════════════
+function copyCode(btn){
+  const block = btn.closest('.code-block');
+  const code = block.querySelector('pre').innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'copied';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.classList.remove('copied');
+    }, 1600);
+  });
+}
+</script>
+
+</body>
+</html>
